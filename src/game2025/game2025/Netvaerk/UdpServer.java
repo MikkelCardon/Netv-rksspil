@@ -13,7 +13,7 @@ public class UdpServer {
 
     public static void main(String[] args) {
         try{
-            datagramSocket = new DatagramSocket(12000);
+            datagramSocket = new DatagramSocket(12_000);
 
             Thread readTråd = new Thread(UdpServer::readFromClient);
             Thread writeTråd = new Thread(UdpServer::broadcastToClients);
@@ -29,13 +29,16 @@ public class UdpServer {
     private static LinkedList<String> queue = new LinkedList();
 
     private static void readFromClient(){
+        System.out.println("Now reading from client");
         byte[] buffer = new byte[1024];
         DatagramPacket datagramPacket = new DatagramPacket(buffer, 0, buffer.length);
 
         while(true){
             try {
                 datagramSocket.receive(datagramPacket);
+                System.out.println("Reading from cliend...");
                 String messageFromClient = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
+                System.out.println(messageFromClient);
                 addToQueue(messageFromClient);
                 buffer = new byte[1024];
             } catch (IOException e) {
@@ -53,6 +56,7 @@ public class UdpServer {
     }
 
     private static void broadcastToClients(){
+        System.out.println("broadcast open");
         try {
             datagramSocket.setBroadcast(true);
             byte[] buffer = new byte[1024];
@@ -67,6 +71,7 @@ public class UdpServer {
             while (true){
                 if (!queue.isEmpty()){
                     String messageFromQueue = removeFromQueue();
+                    System.out.println("Broadcasting : " + messageFromQueue);
                     buffer = messageFromQueue.getBytes();
                     datagramSocket.send(datagramPacket);
                     buffer = new byte[1024];
