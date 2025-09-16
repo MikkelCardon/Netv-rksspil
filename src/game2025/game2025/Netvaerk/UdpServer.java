@@ -37,6 +37,7 @@ public class UdpServer {
                 datagramSocket.receive(datagramPacket);
                 String messageFromClient = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
                 addToQueue(messageFromClient);
+                buffer = new byte[1024];
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
