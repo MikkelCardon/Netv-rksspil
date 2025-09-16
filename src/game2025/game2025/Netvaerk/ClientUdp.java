@@ -12,7 +12,7 @@ public class ClientUdp {
 
     public static void main(String[] args) {
         try {
-            clientSocket = new DatagramSocket(12_000);
+            clientSocket = new DatagramSocket(10_000);
 
             Thread writeToServer = new Thread(ClientUdp::writeToServer);
             Thread readFromServer = new Thread(ClientUdp::readFromServer);
@@ -28,15 +28,11 @@ public class ClientUdp {
 
     private static void readFromServer() {
         DatagramPacket packet = new DatagramPacket(receiveBuffer, 0, receiveBuffer.length);
-        try {
-            clientSocket.setBroadcast(true);
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
 
         while (true){
             System.out.println("test");
             try {
+                System.out.println("Waiting");
                 clientSocket.receive(packet);
                 System.out.println("Packet recieved");
                 String message = new String(packet.getData(), 0 , packet.getLength());
@@ -52,7 +48,7 @@ public class ClientUdp {
         try {
             String testMessage = "HELLO FROM THE CLIENT";
             sendBuffer = testMessage.getBytes();
-            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("10.10.130.163"), 12_005);
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("10.10.130.163"), 10_005);
             clientSocket.send(packet);
             System.out.println("Message sent");
             sendBuffer = new byte[1024];
