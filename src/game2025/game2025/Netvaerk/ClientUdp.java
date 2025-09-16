@@ -1,18 +1,23 @@
 package game2025.game2025.Netvaerk;
 
+import jdk.swing.interop.SwingInterOpUtils;
+
 import java.io.IOException;
 import java.net.*;
+import java.sql.SQLOutput;
 
 public class ClientUdp {
     private static DatagramSocket clientSocket;
     public static void main(String[] args) {
         try {
-            clientSocket = new DatagramSocket(12_005);
+            clientSocket = new DatagramSocket(12_000);
 
             Thread writeToServer = new Thread(ClientUdp::writeToServer);
             Thread readFromServer = new Thread(ClientUdp::readFromServer);
 
             writeToServer.start();
+            readFromServer.start();
+            System.out.println("threads started");
 
         } catch (SocketException e) {
             throw new RuntimeException(e);
@@ -29,8 +34,10 @@ public class ClientUdp {
         }
 
         while (true){
+            System.out.println("test");
             try {
                 clientSocket.receive(packet);
+                System.out.println("Packet recieved");
                 String message = new String(packet.getData(), 0 , packet.getLength());
                 buffer = new byte[1024];
                 System.out.println(message);
@@ -47,6 +54,7 @@ public class ClientUdp {
             String testMessage = "HELLO FROM THE CLIENT";
             buffer = testMessage.getBytes();
             clientSocket.send(packet);
+            System.out.println("Message sent");
             buffer = new byte[1024];
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
