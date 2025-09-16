@@ -4,10 +4,12 @@ import jdk.swing.interop.SwingInterOpUtils;
 
 import java.io.IOException;
 import java.net.*;
-import java.sql.SQLOutput;
 
 public class ClientUdp {
     private static DatagramSocket clientSocket;
+    private static byte[] receiveBuffer = new byte[1024];
+    private static byte[] sendBuffer = new byte[1024];
+
     public static void main(String[] args) {
         try {
             clientSocket = new DatagramSocket(12_000);
@@ -25,8 +27,7 @@ public class ClientUdp {
     }
 
     private static void readFromServer() {
-        byte[] buffer = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length);
+        DatagramPacket packet = new DatagramPacket(receiveBuffer, 0, receiveBuffer.length);
         try {
             clientSocket.setBroadcast(true);
         } catch (SocketException e) {
@@ -39,7 +40,7 @@ public class ClientUdp {
                 clientSocket.receive(packet);
                 System.out.println("Packet recieved");
                 String message = new String(packet.getData(), 0 , packet.getLength());
-                buffer = new byte[1024];
+                receiveBuffer = new byte[1024];
                 System.out.println(message);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -48,14 +49,13 @@ public class ClientUdp {
     }
 
     public static void writeToServer(){
-        byte[] buffer = new byte[1024];
         try {
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("172.25.128.1"), 12_000);
             String testMessage = "HELLO FROM THE CLIENT";
-            buffer = testMessage.getBytes();
+            sendBuffer = testMessage.getBytes();
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("10.10.130.163"), 12_005);
             clientSocket.send(packet);
             System.out.println("Message sent");
-            buffer = new byte[1024];
+            sendBuffer = new byte[1024];
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

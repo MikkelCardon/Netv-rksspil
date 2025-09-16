@@ -10,10 +10,14 @@ import java.util.List;
 
 public class UdpServer {
     private static DatagramSocket datagramSocket;
+    private static Object lock = new Object();
+
+    private static byte[] receiveBuffer = new byte[1024];
+    private static byte[] sendBuffer = new byte[1024];
 
     public static void main(String[] args) {
         try{
-            datagramSocket = new DatagramSocket(12_000);
+            datagramSocket = new DatagramSocket(12_005);
 
             Thread readTråd = new Thread(UdpServer::readFromClient);
             Thread writeTråd = new Thread(UdpServer::broadcastToClients);
@@ -30,8 +34,7 @@ public class UdpServer {
 
     private static void readFromClient(){
         System.out.println("Now reading from client");
-        byte[] buffer = new byte[1024];
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, 0, buffer.length);
+        DatagramPacket datagramPacket = new DatagramPacket(receiveBuffer, 0, receiveBuffer.length);
 
         while(true){
             try {
@@ -40,7 +43,7 @@ public class UdpServer {
                 String messageFromClient = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
                 System.out.println(messageFromClient);
                 addToQueue(messageFromClient);
-                buffer = new byte[1024];
+                receiveBuffer = new byte[1024];
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -48,33 +51,38 @@ public class UdpServer {
     }
 
     private synchronized static void addToQueue(String message){
-        queue.addFirst(message);
+        synchronized (lock){
+            queue.addFirst(message);
+        }
     }
 
     private synchronized static String removeFromQueue(){
-        return queue.removeLast();
+        synchronized (lock){
+            return queue.removeLast();
+        }
     }
 
     private static void broadcastToClients(){
         System.out.println("broadcast open");
         try {
             datagramSocket.setBroadcast(true);
-            byte[] buffer = new byte[1024];
-            DatagramPacket datagramPacket =
-                    new DatagramPacket(
-                            buffer,
-                            buffer.length,
-                            InetAddress.getByName("255.255.255.255"),
-                            12000
-                    );
+            DatagramPacket datagramPacket;
 
             while (true){
                 if (!queue.isEmpty()){
                     String messageFromQueue = removeFromQueue();
                     System.out.println("Broadcasting : " + messageFromQueue);
-                    buffer = messageFromQueue.getBytes();
+                    sendBuffer = messageFromQueue.getBytes();
+
+                    datagramPacket =
+                            new DatagramPacket(
+                                    sendBuffer,
+                                    sendBuffer.length,
+                                    InetAddress.getByName("255.255.255.255"),
+                                    12000
+                            );
                     datagramSocket.send(datagramPacket);
-                    buffer = new byte[1024];
+                    sendBuffer = new byte[1024];
                 }
             }
 
