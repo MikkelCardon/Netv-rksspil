@@ -1,6 +1,4 @@
-package game2025.game2025.Netvaerk;
-
-import jdk.swing.interop.SwingInterOpUtils;
+package game2025.game2025.serverSide;
 
 import java.io.IOException;
 import java.net.*;
@@ -32,7 +30,6 @@ public class ClientUdp {
         while (true){
             System.out.println("test");
             try {
-                System.out.println("Waiting");
                 clientSocket.receive(packet);
                 System.out.println("Packet recieved");
                 String message = new String(packet.getData(), 0 , packet.getLength());
@@ -46,9 +43,9 @@ public class ClientUdp {
 
     public static void writeToServer(){
         try {
-            String testMessage = "HELLO FROM THE CLIENT";
+            String testMessage = "PLAYER 2 MOVE";
             sendBuffer = testMessage.getBytes();
-            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("10.10.130.163"), 10_005);
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("localhost"), 10_005);
             clientSocket.send(packet);
             System.out.println("Message sent");
             sendBuffer = new byte[1024];
