@@ -8,6 +8,11 @@ public class ClientUdp {
     private static byte[] receiveBuffer = new byte[1024];
     private static byte[] sendBuffer = new byte[1024];
 
+
+    public static void setSendBuffer(byte[] sendBuffer) {
+        ClientUdp.sendBuffer = sendBuffer;
+    }
+
     public static void main(String[] args) {
         try {
             clientSocket = new DatagramSocket(10_000);
