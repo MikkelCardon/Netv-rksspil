@@ -38,7 +38,23 @@ public class Player implements Serializable {
 	public void addPoints(int p) {
 		point+=p;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getPoint() {
+		return point;
+	}
+
+	@Override
 	public String toString() {
-		return name+":   "+point;
+		return "Player{" +
+				"name='" + name + '\'' +
+				", xpos=" + xpos +
+				", ypos=" + ypos +
+				", point=" + point +
+				", direction='" + direction + '\'' +
+				'}';
 	}
 }

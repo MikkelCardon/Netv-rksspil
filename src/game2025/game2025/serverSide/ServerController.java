@@ -3,10 +3,11 @@ package game2025.game2025.serverSide;
 public class ServerController {
     public static void main(String[] args) {
         Thread tcpConnectionThread = new Thread(TcpConnection::tcpThread);
-        Thread udpSendAndReceive = new Thread(UdpServer::udpSendAndReceive);
+        Thread writeThread = new Thread()
+        //Thread udpSendAndReceive = new Thread(UdpServer::udpSendAndReceive);
 
         tcpConnectionThread.start();
-        udpSendAndReceive.start();
+        //udpSendAndReceive.start();
     }
 
     public static final String RESET = "\u001B[0m";

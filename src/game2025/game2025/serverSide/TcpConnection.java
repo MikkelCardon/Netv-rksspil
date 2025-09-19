@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+
 import static game2025.game2025.serverSide.ServerController.*;
 
 public class TcpConnection {
@@ -21,33 +22,32 @@ public class TcpConnection {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println(GREEN+"Client connected from: " + clientSocket.getInetAddress() + RESET);
-                Thread handleClient = new Thread(() -> handleClient(clientSocket));
+                Thread handleClient = new Thread(() -> readFromClient(clientSocket));
                 handleClient.start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+    private static List<ObjectOutputStream> outputStreams = new ArrayList<>();
 
-    private static void handleClient(Socket socket){
+    private static void readFromClient(Socket socket){
         try (
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ){
 
-            String joinMessage = (String) in.readObject();
-            System.out.println(BLUE + "client join message: " + joinMessage + RESET);
-            UdpServer.addClient(socket.getInetAddress());
+            while (true){
+                String messageFromClient = (String) in.readObject();
+                System.out.println(BLUE + "client message: " + messageFromClient + RESET);
 
-            List<Player> players = new ArrayList<>();
-            players.add(new Player("Player1", 2, 4, "up"));
-            players.add(new Player("Player1", 2, 4, "up"));
-
-            out.writeObject(players);
-            out.flush();
-
-            socket.close();
-            System.out.println(RED + "Connection closed" + RESET);
+                String[] command = messageFromClient.split(" ");
+                String name = command[1];
+                switch(command[0]){
+                    case "JOIN" -> newPlayer(out, name);
+                    case "MOVE" -> movePlayer();
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
@@ -55,6 +55,33 @@ public class TcpConnection {
         }
 
 
+    }
+
+    private static void newPlayer(ObjectOutputStream out, String joinName) {
+        Player newPlayer = null;
+
+        if (GameInformation.isValidName(joinName)){
+            newPlayer = GameInformation.addNewPlayer(joinName);
+        }else{
+            new Exception("Det må du ikke hedde!!!");
+        }
+        try {
+            outputStreams.add(out);
+            StringBuilder sb = new StringBuilder();
+            sb.append("JOINED ");
+            for (Player serverPlayer : GameInformation.getServerPlayers()) {
+                sb.append(serverPlayer.toString());
+            }
+
+            String toSend = sb.toString();
+
+            for (ObjectOutputStream outputStream : outputStreams) {
+                outputStream.flush();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
