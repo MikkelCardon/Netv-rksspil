@@ -1,6 +1,4 @@
-package game2025.game2025.Netvaerk;
-
-import jdk.swing.interop.SwingInterOpUtils;
+package game2025.game2025.serverSide;
 
 import java.io.IOException;
 import java.net.*;
@@ -12,7 +10,7 @@ public class ClientUdp {
 
     public static void main(String[] args) {
         try {
-            clientSocket = new DatagramSocket(12_000);
+            clientSocket = new DatagramSocket(10_000);
 
             Thread writeToServer = new Thread(ClientUdp::writeToServer);
             Thread readFromServer = new Thread(ClientUdp::readFromServer);
@@ -28,11 +26,6 @@ public class ClientUdp {
 
     private static void readFromServer() {
         DatagramPacket packet = new DatagramPacket(receiveBuffer, 0, receiveBuffer.length);
-        try {
-            clientSocket.setBroadcast(true);
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
 
         while (true){
             System.out.println("test");
@@ -50,9 +43,9 @@ public class ClientUdp {
 
     public static void writeToServer(){
         try {
-            String testMessage = "HELLO FROM THE CLIENT";
+            String testMessage = "PLAYER 2 MOVE";
             sendBuffer = testMessage.getBytes();
-            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("10.10.130.163"), 12_005);
+            DatagramPacket packet = new DatagramPacket(sendBuffer, sendBuffer.length, InetAddress.getByName("localhost"), 10_005);
             clientSocket.send(packet);
             System.out.println("Message sent");
             sendBuffer = new byte[1024];

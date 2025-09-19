@@ -1,6 +1,8 @@
-package game2025.game2025;
+package game2025.game2025.clientSide.GameEngine;
 
-public class Player {
+import java.io.Serializable;
+
+public class Player implements Serializable {
 	String name;
 	int xpos;
 	int ypos;
