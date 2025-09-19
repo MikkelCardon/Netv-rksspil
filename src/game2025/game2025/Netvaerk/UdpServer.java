@@ -17,8 +17,8 @@ public class UdpServer {
 
     public static void main(String[] args) {
         try{
-            datagramSocket = new DatagramSocket(12_005);
-
+            datagramSocket = new DatagramSocket(10_005);
+            datagramSocket.setBroadcast(true);
             Thread readTråd = new Thread(UdpServer::readFromClient);
             Thread writeTråd = new Thread(UdpServer::broadcastToClients);
 
@@ -53,6 +53,7 @@ public class UdpServer {
     private synchronized static void addToQueue(String message){
         synchronized (lock){
             queue.addFirst(message);
+            System.out.println(!queue.isEmpty());
         }
     }
 
@@ -65,7 +66,6 @@ public class UdpServer {
     private static void broadcastToClients(){
         System.out.println("broadcast open");
         try {
-            datagramSocket.setBroadcast(true);
             DatagramPacket datagramPacket;
 
             while (true){
@@ -73,16 +73,19 @@ public class UdpServer {
                     String messageFromQueue = removeFromQueue();
                     System.out.println("Broadcasting : " + messageFromQueue);
                     sendBuffer = messageFromQueue.getBytes();
-
                     datagramPacket =
                             new DatagramPacket(
                                     sendBuffer,
                                     sendBuffer.length,
-                                    InetAddress.getByName("255.255.255.255"),
+                                    InetAddress.getByName("localhost"),
                                     12000
                             );
                     datagramSocket.send(datagramPacket);
+                    System.out.println("Data sent");
                     sendBuffer = new byte[1024];
+                }
+                else {
+                    Thread.sleep(1000);
                 }
             }
 
@@ -92,6 +95,8 @@ public class UdpServer {
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 

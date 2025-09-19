@@ -26,10 +26,10 @@ public class GUI extends Application {
 	public static Player me;
 	public static List<Player> players = new ArrayList<Player>();
 
-	private Label[][] fields;
-	private TextArea scoreList;
+	private static Label[][] fields;
+	private static TextArea scoreList;
 	
-	private  String[] board = {    // 20x20
+	private static String[] board = {    // 20x20
 			"wwwwwwwwwwwwwwwwwwww",
 			"w        ww        w",
 			"w w  w  www w  w  ww",
@@ -138,47 +138,59 @@ public class GUI extends Application {
 			e.printStackTrace();
 		}
 	}
+	public void sendMovement(){
+		
+	}
+	private void calculateMovement(){
 
+	}
 	public void playerMoved(int delta_x, int delta_y, String direction) {
-		me.direction = direction;
-		int x = me.getXpos(),y = me.getYpos();
 
-		if (board[y+delta_y].charAt(x+delta_x)=='w') {
-			me.addPoints(-1);
-		} 
-		else {
-			Player p = getPlayerAt(x+delta_x,y+delta_y);
-			if (p!=null) {
-              me.addPoints(10);
-              p.addPoints(-10);
-			} else {
-				me.addPoints(1);
-			
-				fields[x][y].setGraphic(new ImageView(image_floor));
-				x+=delta_x;
-				y+=delta_y;
-
-				if (direction.equals("right")) {
-					fields[x][y].setGraphic(new ImageView(hero_right));
-				};
-				if (direction.equals("left")) {
-					fields[x][y].setGraphic(new ImageView(hero_left));
-				};
-				if (direction.equals("up")) {
-					fields[x][y].setGraphic(new ImageView(hero_up));
-				};
-				if (direction.equals("down")) {
-					fields[x][y].setGraphic(new ImageView(hero_down));
-				};
-
-				me.setXpos(x);
-				me.setYpos(y);
-			}
-		}
-		scoreList.setText(getScoreList());
 	}
 
-	public String getScoreList() {
+	public static void updatePlayer(String name, int xDelta, int yDelta, String direction){
+		for (Player player : players){
+			if (player.name.equals(name)){
+				if (board[player.ypos+=yDelta].charAt(player.xpos+=xDelta)=='w') {
+					player.addPoints(-1);
+				}
+				else {
+					Player p = getPlayerAt(player.xpos+=xDelta,player.ypos+=yDelta);
+					if (p!=null) {
+						player.addPoints(10);
+						p.addPoints(-10);
+					} else {
+
+						fields[player.xpos][player.ypos].setGraphic(new ImageView(image_floor));
+						player.setXpos(player.xpos+=xDelta);
+						player.setYpos(player.ypos+=yDelta);
+
+
+						if (direction.equals("right")) {
+							fields[player.xpos][player.ypos].setGraphic(new ImageView(hero_right));
+						};
+						if (direction.equals("left")) {
+							fields[player.xpos][player.ypos].setGraphic(new ImageView(hero_left));
+						};
+						if (direction.equals("up")) {
+							fields[player.xpos][player.ypos].setGraphic(new ImageView(hero_up));
+						};
+						if (direction.equals("down")) {
+							fields[player.xpos][player.ypos].setGraphic(new ImageView(hero_down));
+						};
+						player.addPoints(1);
+
+					}
+				}
+				scoreList.setText(getScoreList());
+
+
+
+			}
+		}
+	}
+
+	public static String getScoreList() {
 		StringBuffer b = new StringBuffer(100);
 		for (Player p : players) {
 			b.append(p+"\r\n");
@@ -186,7 +198,7 @@ public class GUI extends Application {
 		return b.toString();
 	}
 
-	public Player getPlayerAt(int x, int y) {
+	public static Player getPlayerAt(int x, int y) {
 		for (Player p : players) {
 			if (p.getXpos()==x && p.getYpos()==y) {
 				return p;
