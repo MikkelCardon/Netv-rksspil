@@ -14,35 +14,24 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.util.Comparator;
-import java.util.List;
-
 import static game2025.game2025.clientSide.GameEngine.GUI.*;
 
 public class SetupClass {
-    private GUI gui;
+    private static GUI gui;
     private Stage primaryStage;
 
     public SetupClass(GUI gui, Stage primaryStage) {
         this.gui = gui;
         this.primaryStage = primaryStage;
 
-        setupBoard(); //Do first
-
-        List<Player> players = ClientController.initialRequest();
-        //Need server(TCP) connection first
-        setupPlayers(players);
-        setupScorelist();
-
-        ClientController.setUpDatagramSocket();
-        //After run UDP socket
-        Thread readFromServer = new Thread(() -> ClientController.runReadFromServer());
+        Thread readFromServer = new Thread(() -> ClientController.initialRequest());
         readFromServer.start();
 
-        ClientController.writeToServer();
+        setupBoard();
+        setupScorelist();
     }
 
-    private void setupScorelist() {
+    public static void setupScorelist() {
         StringBuffer b = new StringBuffer(100);
         for (Player p : players) {
             b.append(p+"\r\n");
@@ -50,16 +39,10 @@ public class SetupClass {
         gui.scoreList.setText(b.toString());
     }
 
-    private void setupPlayers(List<Player> players) {
-        players.sort(Comparator.comparing(p -> p.name));
-        me = players.getLast(); //todo: Er det den bedste måde at få fat i ens egen player?
-
-        for (Player player : players) {
-            System.out.println(player);
-            GUI.players.add(player);
-            ImageView imageView = gui.getDirection(player.direction);
-            gui.fields[player.getXpos()][player.getYpos()].setGraphic(imageView);
-        }
+    public static void setupPlayer(Player player) {
+        GUI.players.add(player);
+        ImageView imageView = gui.getDirection(player.direction);
+        gui.fields[player.getXpos()][player.getYpos()].setGraphic(imageView);
     }
 
     private void setupBoard() {

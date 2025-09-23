@@ -2,9 +2,7 @@ package game2025.game2025.serverSide;
 
 import game2025.game2025.clientSide.GameEngine.Player;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -29,16 +27,16 @@ public class TcpConnection {
             throw new RuntimeException(e);
         }
     }
-    private static List<ObjectOutputStream> outputStreams = new ArrayList<>();
+    private static List<DataOutputStream> outputStreams = new ArrayList<>();
 
     private static void readFromClient(Socket socket){
         try (
-            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             ){
 
             while (true){
-                String messageFromClient = (String) in.readObject();
+                String messageFromClient = in.readLine();
                 System.out.println(BLUE + "client message: " + messageFromClient + RESET);
 
                 String[] command = messageFromClient.split(" ");
@@ -50,14 +48,12 @@ public class TcpConnection {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
 
 
     }
 
-    private static void newPlayer(ObjectOutputStream out, String joinName) {
+    private static void newPlayer(DataOutputStream out, String joinName) {
         Player newPlayer = null;
 
         if (GameInformation.isValidName(joinName)){
@@ -75,13 +71,17 @@ public class TcpConnection {
 
             String toSend = sb.toString();
 
-            for (ObjectOutputStream outputStream : outputStreams) {
+            for (DataOutputStream outputStream : outputStreams) {
+                outputStream.writeBytes(toSend);
                 outputStream.flush();
             }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void movePlayer() {
     }
 
 }

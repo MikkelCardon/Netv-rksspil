@@ -22,7 +22,7 @@ public class GameInformation {
         int xPosition = xPos.get(randomNumber);
         int yPosition = yPos.get(randomNumber);
 
-        Player newPlayer = new Player(name, xPosition, yPosition, "up");
+        Player newPlayer = new Player(name, xPosition, yPosition, "up", 0);
         serverPlayers.add(newPlayer);
         return newPlayer;
     }

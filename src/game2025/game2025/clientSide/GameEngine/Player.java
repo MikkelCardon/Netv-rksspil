@@ -17,6 +17,14 @@ public class Player implements Serializable {
 		this.point = 0;
 	}
 
+	public Player(String name, int xpos, int ypos, String direction, int point) {
+		this.name = name;
+		this.xpos = xpos;
+		this.ypos = ypos;
+		this.direction = direction;
+		this.point = point;
+	}
+
 	public int getXpos() {
 		return xpos;
 	}
@@ -49,12 +57,6 @@ public class Player implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Player{" +
-				"name='" + name + '\'' +
-				", xpos=" + xpos +
-				", ypos=" + ypos +
-				", point=" + point +
-				", direction='" + direction + '\'' +
-				'}';
+		return "{"+name+","+xpos+","+ypos+","+direction+","+point+"} ";
 	}
 }
