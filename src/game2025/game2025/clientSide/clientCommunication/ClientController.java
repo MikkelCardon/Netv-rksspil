@@ -14,12 +14,15 @@ public class ClientController {
     private static final String NAME = "Flemming";
 
     private static boolean isJoined = false;
+    private static Socket clientSocket;
+    private static BufferedReader in;
+    private static DataOutputStream out;
 
     public static void initialRequest(){
-        try(Socket clientSocket = new Socket(serverIp, PORT_OUT)) {
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+        try{
+            clientSocket = new Socket(serverIp, PORT_OUT);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new DataOutputStream(clientSocket.getOutputStream());
 
             out.writeBytes("JOIN " + NAME + "\n");
             //out.flush();
@@ -28,12 +31,14 @@ public class ClientController {
             while (true){
                 System.out.println("Waiting for server...");
                 String message = in.readLine();
+                System.out.println(message);
 
                 String[] splittedMessage = message.split(" ");
                 String function = splittedMessage[0];
 
                 switch (function){
                     case "JOINED" -> addPlayer(splittedMessage);
+                    case "MOVE" -> movePlayer(splittedMessage);
                 }
             }
 
@@ -75,5 +80,28 @@ public class ClientController {
         return player;
     }
 
+    public static void sendMoveRequest(int deltaX, int deltaY, String direction) {
+        Player me = GUI.me;
+        String messageOut = "MOVE_REQUEST "+me.getName()+" "+deltaX+" "+deltaY+" "+direction;
+        try {
+            System.out.println(messageOut);
+            out.writeBytes(messageOut + "\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public static void movePlayer(String[] splittedMessage){
+        Player playerToMove = null;
+        for (Player player : GUI.players) {
+            if (player.getName().equals(splittedMessage[1])){
+                playerToMove = player;
+                break;
+            }
+        }
+        int x = Integer.parseInt(splittedMessage[2]);
+        int y = Integer.parseInt(splittedMessage[3]);
+
+        GUI.movePlayer(x, y, splittedMessage[4], playerToMove);
+    }
 }

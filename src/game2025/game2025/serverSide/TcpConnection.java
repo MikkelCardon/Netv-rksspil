@@ -12,6 +12,7 @@ import static game2025.game2025.serverSide.ServerController.*;
 
 public class TcpConnection {
     private static final int PORT = 10_000;
+    private static final Object lock = new Object();
 
     public static void tcpThread(){
         try {
@@ -41,9 +42,11 @@ public class TcpConnection {
 
                 String[] command = messageFromClient.split(" ");
                 String name = command[1];
-                switch(command[0]){
-                    case "JOIN" -> newPlayer(out, name);
-                    case "MOVE" -> movePlayer();
+                synchronized (lock){
+                    switch(command[0]){
+                        case "JOIN" -> newPlayer(out, name);
+                        case "MOVE_REQUEST" -> movePlayer(command);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -58,6 +61,7 @@ public class TcpConnection {
 
         if (GameInformation.isValidName(joinName)){
             newPlayer = GameInformation.addNewPlayer(joinName);
+            System.out.println(newPlayer);
         }else{
             new Exception("Det må du ikke hedde!!!");
         }
@@ -78,13 +82,27 @@ public class TcpConnection {
         }
     }
 
-    private synchronized static void sendToClients(String toSend) throws IOException {
+    private static void sendToClients(String toSend) throws IOException {
         for (DataOutputStream outputStream : outputStreams) {
             outputStream.writeBytes(toSend + "\n");
         }
     }
 
-    private static void movePlayer() {
+    private static void movePlayer(String[] command) {
+        command[0] = "MOVE";
+
+        StringBuilder sb = new StringBuilder();
+        for (String s : command) {
+            sb.append(s+" ");
+        }
+        String out = sb.toString();
+        for (DataOutputStream outputStream : outputStreams) {
+            try {
+                outputStream.writeBytes(out + "\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 }

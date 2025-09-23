@@ -1,6 +1,7 @@
 package game2025.game2025.clientSide.GameEngine;
 
 import game2025.game2025.clientSide.clientCommunication.ClientController;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -24,11 +25,11 @@ public class SetupClass {
         this.gui = gui;
         this.primaryStage = primaryStage;
 
+        setupBoard();
+        //setupScorelist();
+
         Thread readFromServer = new Thread(() -> ClientController.initialRequest());
         readFromServer.start();
-
-        setupBoard();
-        setupScorelist();
     }
 
     public static void setupScorelist() {
@@ -36,13 +37,17 @@ public class SetupClass {
         for (Player p : players) {
             b.append(p+"\r\n");
         }
-        gui.scoreList.setText(b.toString());
+        Platform.runLater(() ->{
+            gui.scoreList.setText(b.toString());
+        });
     }
 
     public static void setupPlayer(Player player) {
         GUI.players.add(player);
-        ImageView imageView = gui.getDirection(player.direction);
-        gui.fields[player.getXpos()][player.getYpos()].setGraphic(imageView);
+        Platform.runLater(() ->{
+            ImageView imageView = gui.getDirection(player.direction);
+            gui.fields[player.getXpos()][player.getYpos()].setGraphic(imageView);
+        });
     }
 
     private void setupBoard() {
@@ -101,16 +106,16 @@ public class SetupClass {
             scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
                 switch (event.getCode()) {
                     case UP:
-                        gui.playerMoved(0, -1, "up");
+                        gui.playerMoveRequest(0, -1, "up");
                         break;
                     case DOWN:
-                        gui.playerMoved(0, +1, "down");
+                        gui.playerMoveRequest(0, +1, "down");
                         break;
                     case LEFT:
-                        gui.playerMoved(-1, 0, "left");
+                        gui.playerMoveRequest(-1, 0, "left");
                         break;
                     case RIGHT:
-                        gui.playerMoved(+1, 0, "right");
+                        gui.playerMoveRequest(+1, 0, "right");
                         break;
                     default:
                         break;
