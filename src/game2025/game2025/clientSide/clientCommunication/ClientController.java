@@ -18,6 +18,8 @@ public class ClientController {
     private static BufferedReader in;
     private static DataOutputStream out;
 
+    private static Object lock = new Object();
+
     public static void initialRequest(){
         try{
             clientSocket = new Socket(serverIp, PORT_OUT);
@@ -85,7 +87,9 @@ public class ClientController {
         String messageOut = "MOVE_REQUEST "+me.getName()+" "+deltaX+" "+deltaY+" "+direction;
         try {
             //System.out.println(messageOut);
-            out.writeBytes(messageOut + "\n");
+            synchronized (lock){
+                out.writeBytes(messageOut + "\n");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -95,7 +99,9 @@ public class ClientController {
         String messageOut = "MOVE "+GUI.me.toString();
         try {
             //System.out.println(messageOut);
-            out.writeBytes(messageOut + "\n");
+            synchronized (lock){
+                out.writeBytes(messageOut + "\n");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
