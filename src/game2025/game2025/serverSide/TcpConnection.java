@@ -106,7 +106,9 @@ public class TcpConnection {
 
     private static void updateServerInformation(String[] command) {
         Player player = null;
-        String name = command[1];
+        String trimedString = command[1].substring(1, command[1].length()-1);
+        String[] stats = trimedString.split(",");
+        String name = stats[0];
 
         for (Player serverPlayer : GameInformation.getServerPlayers()) {
             if (serverPlayer.getName().equals(name)){
@@ -115,10 +117,10 @@ public class TcpConnection {
             }
         }
 
-        player.setXpos(Integer.parseInt(command[2]));
-        player.setYpos(Integer.parseInt(command[3]));
-        player.setPoint(Integer.parseInt(command[4]));
-        player.setDirection(command[5]);
+        player.setXpos(Integer.parseInt(stats[1]));
+        player.setYpos(Integer.parseInt(stats[2]));
+        player.setDirection(stats[3]);
+        player.setPoint(Integer.parseInt(stats[4]));
     }
 
 }
