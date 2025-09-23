@@ -109,7 +109,7 @@ public class GUI extends Application {
 			scoreList.setText(getScoreList());
 		});
 		if (me.getPoint() != mePoints){
-			System.out.println("Send new position and points to server");
+			ClientController.sendMove();
 		}
 	}
 

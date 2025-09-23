@@ -8,7 +8,7 @@ import java.io.*;
 import java.net.*;
 
 public class ClientController {
-    private static String serverIp = "10.10.132.237";
+    private static String serverIp = "localhost";
     private static final int PORT_IN = 10_000;
     private static final int PORT_OUT = 10_000;
     private static final String NAME = "Flemming";
@@ -26,12 +26,12 @@ public class ClientController {
 
             out.writeBytes("JOIN " + NAME + "\n");
             //out.flush();
-            System.out.println("TCP - Initial Request...");
+            //System.out.println("TCP - Initial Request...");
 
             while (true){
-                System.out.println("Waiting for server...");
+                //System.out.println("Waiting for server...");
                 String message = in.readLine();
-                System.out.println(message);
+                //System.out.println(message);
 
                 String[] splittedMessage = message.split(" ");
                 String function = splittedMessage[0];
@@ -84,7 +84,17 @@ public class ClientController {
         Player me = GUI.me;
         String messageOut = "MOVE_REQUEST "+me.getName()+" "+deltaX+" "+deltaY+" "+direction;
         try {
-            System.out.println(messageOut);
+            //System.out.println(messageOut);
+            out.writeBytes(messageOut + "\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void sendMove() {
+        String messageOut = "MOVE "+GUI.me.toString();
+        try {
+            //System.out.println(messageOut);
             out.writeBytes(messageOut + "\n");
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -55,6 +55,10 @@ public class Player implements Serializable {
 		return point;
 	}
 
+	public void setPoint(int point) {
+		this.point = point;
+	}
+
 	@Override
 	public String toString() {
 		return "{"+name+","+xpos+","+ypos+","+direction+","+point+"} ";

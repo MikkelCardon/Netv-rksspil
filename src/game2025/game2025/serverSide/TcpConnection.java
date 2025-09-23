@@ -46,14 +46,13 @@ public class TcpConnection {
                     switch(command[0]){
                         case "JOIN" -> newPlayer(out, name);
                         case "MOVE_REQUEST" -> movePlayer(command);
+                        case "MOVE" -> updateServerInformation(command);
                     }
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     private static void newPlayer(DataOutputStream out, String joinName) {
@@ -103,6 +102,23 @@ public class TcpConnection {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private static void updateServerInformation(String[] command) {
+        Player player = null;
+        String name = command[1];
+
+        for (Player serverPlayer : GameInformation.getServerPlayers()) {
+            if (serverPlayer.getName().equals(name)){
+                player = serverPlayer;
+                break;
+            }
+        }
+
+        player.setXpos(Integer.parseInt(command[2]));
+        player.setYpos(Integer.parseInt(command[3]));
+        player.setPoint(Integer.parseInt(command[4]));
+        player.setDirection(command[5]);
     }
 
 }
