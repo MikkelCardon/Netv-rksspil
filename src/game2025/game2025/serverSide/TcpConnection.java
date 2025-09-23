@@ -71,13 +71,16 @@ public class TcpConnection {
 
             String toSend = sb.toString();
 
-            for (DataOutputStream outputStream : outputStreams) {
-                outputStream.writeBytes(toSend);
-                outputStream.flush();
-            }
+            sendToClients(toSend);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private synchronized static void sendToClients(String toSend) throws IOException {
+        for (DataOutputStream outputStream : outputStreams) {
+            outputStream.writeBytes(toSend + "\n");
         }
     }
 

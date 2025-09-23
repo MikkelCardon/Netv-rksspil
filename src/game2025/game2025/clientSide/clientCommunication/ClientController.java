@@ -8,10 +8,10 @@ import java.io.*;
 import java.net.*;
 
 public class ClientController {
-    private static String serverIp = "localhost";
+    private static String serverIp = "10.10.132.237";
     private static final int PORT_IN = 10_000;
     private static final int PORT_OUT = 10_000;
-    private static final String NAME = "Karl";
+    private static final String NAME = "Flemming";
 
     private static boolean isJoined = false;
 
@@ -21,11 +21,12 @@ public class ClientController {
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
-            out.writeBytes("JOIN " + NAME);
-            out.flush();
+            out.writeBytes("JOIN " + NAME + "\n");
+            //out.flush();
             System.out.println("TCP - Initial Request...");
 
             while (true){
+                System.out.println("Waiting for server...");
                 String message = in.readLine();
 
                 String[] splittedMessage = message.split(" ");
